@@ -1,3 +1,4 @@
+// RandomCoffee/main.ts
 import { webhookCallback } from "https://deno.land/x/grammy@v1.32.0/mod.ts";
 import express, { Request, Response } from 'npm:express';
 import { bot } from "./lib/bot.ts";
@@ -23,7 +24,7 @@ app.post(web_hook_path, async (req: Request, res: Response) => {
     }
 });
 
-// Слушаем на порту 5000
+// Слушаем на порту 5000 и выводим сообщение в консоль
 const PORT = 5000;
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
