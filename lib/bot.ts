@@ -29,3 +29,5 @@ bot.callbackQuery("/about", async (ctx) => {
 // Теперь, когда вы указали, как обрабатывать сообщения, вы можете запустить своего бота.
 // Он подключится к серверам Telegram и будет ждать сообщений.
 // Запуск бота производится из файла main.ts
+//https://api.telegram.org/bot<dash.deno.com/projects/dotsan-randomcoffe-20>/setWebhook?url=/<dash.deno.com/projects/dotsan-randomcoffe-20>/webhook
+//1
