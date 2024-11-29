@@ -1,6 +1,7 @@
 {
   "version": "4",
   "specifiers": {
+    "npm:dotenv@*": "16.4.5",
     "npm:dotenv@^16.4.5": "16.4.5",
     "npm:express@*": "4.21.1",
     "npm:express@^4.21.1": "4.21.1"
