@@ -18,7 +18,7 @@ for (const command in commands) {
   );
 }
 for (const handler in handlers) {
-    bot.command(
+    bot.on(
       handler,
       handlers[handler],
     );
