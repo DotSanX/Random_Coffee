@@ -1,8 +1,6 @@
 {
   "version": "4",
   "specifiers": {
-    "npm:dotenv@*": "16.4.5",
-    "npm:dotenv@^16.4.5": "16.4.5",
     "npm:express@*": "4.21.1",
     "npm:express@^4.21.1": "4.21.1"
   },
@@ -81,9 +79,6 @@
     },
     "destroy@1.2.0": {
       "integrity": "sha512-2sJGJTaXIIaR1w4iJSNoN0hnMY7Gpc/n8D4qSCJw8QqFWXf7cuAgnEHxBpweaVcPevC2l3KpjYCx3NypQQgaJg=="
-    },
-    "dotenv@16.4.5": {
-      "integrity": "sha512-ZmdL2rui+eB2YwhsWzjInR8LldtZHGDoQ1ugH85ppHKwpUHL7j7rN0Ti9NCnGiQbhaZ11FpR+7ao1dNsmduNUg=="
     },
     "ee-first@1.1.1": {
       "integrity": "sha512-WMwm9LhRUo+WUaRN+vRuETqG89IgZphVSNkdFgeb6sS/E4OrDIN7t48CAewSHXc6C8lefD8KKfr5vY61brQlow=="
@@ -419,7 +414,6 @@
   },
   "workspace": {
     "dependencies": [
-      "npm:dotenv@^16.4.5",
       "npm:express@^4.21.1"
     ]
   }
