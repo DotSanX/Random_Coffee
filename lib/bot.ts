@@ -8,12 +8,15 @@ type MyContext = Context & {
 };
 export const bot = new Bot<MyContext>(Deno.env.get("BOT_TOKEN") || "");
 
+let state = "";
+const info: Record<string, string | number | []> = {};
+
 bot.use(
   async (ctx, next) => {
-    ctx.config = {
-      state: "",
-      info: {},
-    };
+    // ctx.config = {
+    //   state: "",
+    //   info: {},
+    // };
     await next();
   },
 );
@@ -26,26 +29,25 @@ bot.command("start", async (ctx) => {
     "🤔 А как зовут тебя? \n <b>Учти, что твое имя увидят другие пользователи.</b>",
     { parse_mode: "HTML" },
   );
-  ctx.config.state = "setName";
+  state = "setName";
 });
 
 bot.on("message", async (ctx) => {
-  console.log(ctx.config.state);
-  if (ctx.config.state) {
-    const state = ctx.config.state;
+  console.log(state);
+  if (state) {
     switch (state) {
       case "setName":
-        ctx.config.state = ctx.msg.text || "";
-        ctx.reply("Отличное имя, " + ctx.config.info.name + "!");
+        info["name"] = ctx.msg.text || "";
+        ctx.reply("Отличное имя, " + info[name] + "!");
         ctx.reply("Кстати, сколько тебе лет?");
-        ctx.config.state = "setAge";
+        state = "setAge";
         break;
       case "setAge":
-        ctx.config.info.age = Number(ctx.msg.text);
+        info["age"] = Number(ctx.msg.text);
         ctx.reply(
           "Отлично! 🤩 Отправь мне местоположение, рядом с которым тебе будет удобно встретиться",
         );
-        ctx.config.state = "setInterests";
+        state = "setInterests";
         break;
 
       default:
