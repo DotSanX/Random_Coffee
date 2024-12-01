@@ -18,10 +18,12 @@ for (const command in commands) {
   );
 }
 for (const handler in handlers) {
+  if (handler == "message") {
     bot.on(
-      handler,
+      "message",
       handlers[handler],
     );
   }
+}
 
 export const users = {};

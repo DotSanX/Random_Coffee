@@ -1,5 +1,5 @@
 export const handlers = {
-    'message': async (ctx: any) => {
+    message: async (ctx: any) => {
         if (ctx.config.currentEvent) {
             const event = ctx.config.currentEvent
             switch (event) {
