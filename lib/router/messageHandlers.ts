@@ -5,9 +5,9 @@ export const handlers = {
             switch (event) {
                 case "nameSetting":
                     ctx.config.userInfo.name = ctx.msg.text
-                    ctx.reply("ОТличное имя, " + ctx.config.userInfo.name)
+                    ctx.reply("Отличное имя, " + ctx.config.userInfo.name)
                     break;
-            
+                
                 default:
                     break;
             }
