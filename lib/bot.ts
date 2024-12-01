@@ -74,7 +74,7 @@ bot.on("message", async (ctx) => {
     switch (state) {
       case "setName":
         info.name = ctx.msg.text || ""; //сохраняем в переменную
-        await ctx.reply("Отличное имя, " + info.name + "!");
+        await ctx.reply("Приятно познакомиться, " + info.name + "!");
         await ctx.reply("Кстати, сколько тебе лет?");
         state = "setAge"; // и меняем состояние
         break;
