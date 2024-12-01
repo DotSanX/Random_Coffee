@@ -33,6 +33,7 @@ bot.command("start", async (ctx) => {
 });
 
 bot.on("message", async (ctx) => {
+  console.log(ctx.config.state)
   if (ctx.config.state) {
     const state = ctx.config.state;
     switch (state) {
