@@ -9,7 +9,13 @@ type MyContext = Context & {
 export const bot = new Bot<MyContext>(Deno.env.get("BOT_TOKEN") || "");
 
 let state = "";
-const info: Record<string, string | number | []> = {};
+const info: Record<string, string | number | []> = {
+  name: "",
+  age: 0,
+  interests: [],
+  geo: "",
+  time: ""
+};
 
 bot.use(
   async (ctx, next) => {
@@ -33,7 +39,6 @@ bot.command("start", async (ctx) => {
 });
 
 bot.on("message", async (ctx) => {
-  console.log(state);
   if (state) {
     switch (state) {
       case "setName":
