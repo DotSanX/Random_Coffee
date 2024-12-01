@@ -1,17 +1,18 @@
-import {Bot} from "https://deno.land/x/grammy@v1.32.0/mod.ts";
-export interface User {
-  name: string;
-  age: number;
-  interests: string[];
-  geo: string;
-  time: Date;
+import {Bot, Context} from "https://deno.land/x/grammy@v1.32.0/mod.ts";
+interface UserInfo {
+  state: string, 
+  info: Record<string, string | number | []>
 }
-export const bot = new Bot(Deno.env.get("BOT_TOKEN") || "");
+type MyContext = Context & {
+  config: UserInfo
+}
+export const bot = new Bot<MyContext>(Deno.env.get("BOT_TOKEN") || "");
+
 bot.use(
   async (ctx, next) => {
     ctx.config = {
       state: "",
-      users: {}
+      info: {}
     }
     await next()
   }
