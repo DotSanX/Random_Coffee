@@ -42,13 +42,13 @@ bot.on("message", async (ctx) => {
   if (state) {
     switch (state) {
       case "setName":
-        info["name"] = ctx.msg.text || "";
-        ctx.reply("Отличное имя, " + info[name] + "!");
+        info.name = ctx.msg.text || "";
+        ctx.reply("Отличное имя, " + info.name + "!");
         ctx.reply("Кстати, сколько тебе лет?");
         state = "setAge";
         break;
       case "setAge":
-        info["age"] = Number(ctx.msg.text);
+        info.age = Number(ctx.msg.text);
         ctx.reply(
           "Отлично! 🤩 Отправь мне местоположение, рядом с которым тебе будет удобно встретиться",
         );
