@@ -2,8 +2,8 @@
 import { webhookCallback } from "https://deno.land/x/grammy@v1.32.0/mod.ts";
 import express, { Request, Response } from 'npm:express';
 import { bot } from "./lib/bot.ts";
-
 const app = express();
+
 
 const handleUpdate = webhookCallback(bot, 'express');
 
