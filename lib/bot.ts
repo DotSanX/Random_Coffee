@@ -19,8 +19,6 @@ type MyContext = Context & {
 };
 
 const database = await Deno.openKv();
-const curruser = 12144141;
-await database.set(["users", curruser], "admin");
 
 //объявил бота
 export const bot = new Bot<MyContext>(Deno.env.get("BOT_TOKEN") || "");
@@ -67,6 +65,7 @@ bot.on("message", (ctx) => {
 
 bot.command("start", async (ctx) => { // бот получает команду /start
   if (await database.get(["users", info.id])) {
+    await ctx.reply("in db")
     info.state = String(
       (await database.get(["users", info.id, "state"])).value,
     );
