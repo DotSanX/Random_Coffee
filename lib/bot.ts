@@ -73,8 +73,9 @@ bot.on("message", async (ctx) => {
   if (state) { // при непустом state
     switch (state) {
       case "setName":
-        if (typeof ctx.msg.text !== "string") {
-          await ctx.reply("Извини, но имя должно быть текстом!");
+        if (typeof ctx.msg.text !== "string" ||
+          /[0-9_.*^%$#@!]/.test(ctx.msg.text)) {
+          await ctx.reply("Извини, но имя должно быть текстом, не содержащим цифр или спецсимволов!");
           return;
         }
         
