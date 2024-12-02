@@ -1,16 +1,24 @@
-import { Bot, Context, InlineKeyboard } from "https://deno.land/x/grammy@v1.32.0/mod.ts";
+import {
+  Bot,
+  Context,
+  InlineKeyboard,
+} from "https://deno.land/x/grammy@v1.32.0/mod.ts";
 
 // интерфейс и тип для корректной работы и ide
 interface UserInfo {
-  name: string,
-  age: number,
-  interests : string[],
-  geo: string,
-  time: string,
+  name: string;
+  age: number;
+  interests: string[];
+  geo: string;
+  time: string;
 }
 type MyContext = Context & {
   config: UserInfo;
 };
+
+const database = await Deno.openKv();
+const curruser = 12144141;
+await database.set(["users", curruser], "admin")
 
 //объявил бота
 export const bot = new Bot<MyContext>(Deno.env.get("BOT_TOKEN") || "");
@@ -22,52 +30,60 @@ let state = ""; // эта переменная нужна для обработ�
 // setInterests - установка интересов
 // setGeo - установка геопозиции
 // setTime - установка времени
-// Pending - состояние ожидания 
+// Pending - состояние ожидания
 // Searching - состояние поиска
 
 // info будет нужна для сохранения инфо пользователя в бд (или получения) - представляет из себя набор данных о пользователе
 const info: UserInfo = {
   name: "",
   age: 0,
-  interests : [],
+  interests: [],
   geo: "",
-  time: ""
+  time: "",
 };
 
 // будущий middleware !пригодится для бд!
-bot.use(
-  async (ctx, next) => {
-    // ctx.config = {
-    // };
-    await next();
-  },
-);
+// bot.use(
+//   async (ctx, next) => {
+//     if (ctx) {}
+//     // ctx.config = {
+//     // };
+//     await next();
+//   },
+// );
 
 bot.command("start", async (ctx) => { // бот получает команду /start
-  await ctx.reply(
-    "Привет!👋🏻 \nВижу, ты тут впервые. Я - бот Коффи☕️. С моей помощью ты сможешь пообщаться с людьми, которым интересно то же, что и тебе!",
-  );
-  await ctx.reply(
-    "🤔 А как зовут тебя? \n <b>Учти, что твое имя увидят другие пользователи.</b>",
-    { parse_mode: "HTML" }, // нужно, чтобы использовать теги из html
-  );
-  state = "setName"; // следующим сообщением боту должно придти имя
+  if (curruser in database.get(["users"])) {
+    await ctx.reply(
+      "Привет!👋🏻 \nВижу, ты тут впервые. Я - бот Коффи☕️. С моей помощью ты сможешь пообщаться с людьми, которым интересно то же, что и тебе!",
+    );
+    await ctx.reply(
+      "🤔 А как зовут тебя? \n <b>Учти, что твое имя увидят другие пользователи.</b>",
+      { parse_mode: "HTML" }, // нужно, чтобы использовать теги из html
+    );
+    state = "setName"; // следующим сообщением боту должно придти имя
+  } else {
+    await ctx.reply("test")
+  }
 });
 
 // клавиатура для подтверждения интересов
-const yesOrNo = new InlineKeyboard().text("Да✅", "interestsDone").text("Нет❌", "interestsNotDone")
+const yesOrNo = new InlineKeyboard().text("Да✅", "interestsDone").text(
+  "Нет❌",
+  "interestsNotDone",
+);
 
 //обработка подтверждения интересов
-bot.callbackQuery("interestsDone", async ctx=>{
-  await ctx.deleteMessage()
-  await ctx.reply("Отлично!")
+bot.callbackQuery("interestsDone", async (ctx) => {
+  await ctx.deleteMessage();
+  await ctx.reply("Отлично!");
   state = "pending";
-})
-bot.callbackQuery("interestsNotDone", async ctx=>{
-  await ctx.deleteMessage()
-  await ctx.reply("Хорошо, напиши еще увлечений!")
+});
+bot.callbackQuery("interestsNotDone", async (ctx) => {
+  await ctx.deleteMessage();
+  await ctx.reply("Хорошо, напиши еще увлечений!");
   state = "setInterests";
-})
+});
 
 bot.on("message", async (ctx) => {
   if (state) { // при непустом state
@@ -106,12 +122,12 @@ bot.on("message", async (ctx) => {
           }
         }
         await ctx.reply(
-          "🏆 Вот список твоих интересов:"
+          "🏆 Вот список твоих интересов:",
         );
         await ctx.reply(
-          info.interests.toString()
+          info.interests.toString(),
         );
-        await ctx.reply("Это все?", {reply_markup: yesOrNo});// смотри bot.callbackQuery
+        await ctx.reply("Это все?", { reply_markup: yesOrNo }); // смотри bot.callbackQuery
         break;
       default:
         break;
