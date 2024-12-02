@@ -52,11 +52,11 @@ bot.use(
 );
 
 bot.command("start", async (ctx) => { // бот получает команду /start
-  if (curruser in database.get(["users"])) {
+  if (await database.get(["users", curruser])) {
     ctx.reply("test");
   } else {
     ctx.reply("damn")
-    ctx.reply(`${(await database.get(["users"])).value}`)
+    ctx.reply(`${(await database.get(["users", curruser])).value}`)
   }
   await ctx.reply(
     "Привет!👋🏻 \nВижу, ты тут впервые. Я - бот Коффи☕️. С моей помощью ты сможешь пообщаться с людьми, которым интересно то же, что и тебе!",
