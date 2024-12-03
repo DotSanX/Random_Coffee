@@ -66,7 +66,6 @@ bot.command("start", async (ctx) => { // бот получает команду 
 bot.callbackQuery("interestsDone", async (ctx) => {
   await ctx.deleteMessage();
   await ctx.reply("Отлично!");
-  await ctx.reply("Вот, как тебя увидят другие пользователи:");
   await reviewProfile(ctx);
 });
 bot.callbackQuery("interestsNotDone", async (ctx) => {
@@ -118,17 +117,54 @@ bot.on("message", async (ctx) => {
         break;
 
       case "review":
-        if (ctx.msg.text == "Да!") {
-          await ctx.reply("Отлично!");
-        } else if (ctx.msg.text == "Нет, хочу изменить") {
-          await ctx.reply("Выбери, что хочешь изменить", {
-            reply_markup: changesKeyboard,
-          });
-        } else {
-          await ctx.reply("Выбери один из вариантов на клавиатуре Telegram!");
+        switch (ctx.msg.text) {
+          case "Да!":
+            await ctx.reply("Отлично!");
+            await database.set(["users", info.id, "name"], info.name);
+            await database.set(["users", info.id, "age"], info.age);
+            await database.set(["users", info.id, "interests"], info.interests);
+            await database.set(["users", info.id, "geo"], info.geo);
+            await database.set(["users", info.id, "state"], info.state);
+            await database.set(["users", info.id, "time"], info.time);
+            break;
+
+          case "Нет, хочу изменить":
+            setState("changeProfile");
+            await ctx.reply("Выбери, что хочешь изменить", {
+              reply_markup: changesKeyboard,
+            });
+            break;
+
+          default:
+            await ctx.reply("Выбери один из вариантов на клавиатуре Telegram!");
+            break;
         }
         break;
-
+      case "changeProfile":
+        switch (ctx.msg.text) {
+          case "Имя":
+            await ctx.reply("Хорошо, введи другое имя")
+            break;
+          case "Возраст":
+            await ctx.reply("Хорошо, введи другой возраст")
+            break;
+          case "Геопозицию":
+            await ctx.reply("Хорошо, отправь другую геопозицию")
+            break;
+          case "Интересы":
+            await ctx.reply("Хорошо, введи другие интересы")
+            break;
+          case "Удобное время":
+            await ctx.reply("Хорошо, введи другое время")
+            break;
+          case "Хочу заполнить профиль заново":
+            await ctx.reply("Хорошо, введи другое имя")
+            break;
+          default:
+            await ctx.reply("Выбери вариант ответа, используя клавиатуру Telegram!")
+            break;
+        }
+        break;
       case "setGeo":
         if (!ctx.msg.location) {
           await ctx.reply(
