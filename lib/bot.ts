@@ -69,7 +69,7 @@ bot.use(
 
 bot.command("start", async (ctx) => { // бот получает команду /start
   info.id = Number(ctx.msg.from?.id);
-  if ((await database.get(["users", info.id])).key != null) {
+  if ((await database.get(["users", info.id])).value != null) {
     info.name = String((await database.get(["users", info.id, "name"])).value);
     info.age = Number((await database.get(["users", info.id, "age"])).value);
     info.interests = Array(
