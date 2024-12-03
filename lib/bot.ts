@@ -99,6 +99,8 @@ bot.on("message", async (ctx) => {
           "👀 Подсказка: нажми на скрепку🖇️ -> местоположение📍",
         );
         state = "setGeo";
+        console.log(info.geo);
+
         break;
 
       case "setGeo":
