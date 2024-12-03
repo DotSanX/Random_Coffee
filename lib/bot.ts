@@ -2,6 +2,8 @@ import {
   Bot,
   Context,
   InlineKeyboard,
+  Keyboard,
+  NextFunction,
 } from "https://deno.land/x/grammy@v1.32.0/mod.ts";
 
 // интерфейс и тип для корректной работы и ide
@@ -48,6 +50,14 @@ const info: UserInfo = {
   state: "",
 };
 
+// клавиатура для подтверждения интересов
+const yesOrNo = new InlineKeyboard().text("Да✅", "interestsDone").text(
+  "Нет❌",
+  "interestsNotDone",
+);
+
+const menuKeyboard = new Keyboard().text("Мой профиль 👤");
+
 // будущий middleware !пригодится для бд!
 bot.use(
   // async (ctx, next) => {
@@ -60,10 +70,22 @@ bot.use(
 bot.command("start", async (ctx) => { // бот получает команду /start
   info.id = Number(ctx.msg.from?.id);
   if (await database.get(["users", info.id])) {
-    await ctx.reply("in db");
+    info.name = String((await database.get(["users", info.id, "name"])).value);
+    info.age = Number((await database.get(["users", info.id, "age"])).value);
+    info.interests = Array(
+      String((await database.get(["users", info.id, "interests"])).value),
+    );
+    info.geo.latitude = Number(
+      (await database.get(["users", info.id, "geo", "latitude"])).value,
+    );
+    info.geo.longitiute = Number(
+      (await database.get(["users", info.id, "geo", "longtitude"])).value,
+    );
+    info.time = String((await database.get(["users", info.id, "state"])).value);
     info.state = String(
       (await database.get(["users", info.id, "state"])).value,
     );
+    await ctx.reply(`Привет, ${info.name}!`, { reply_markup: menuKeyboard });
   } else {
     await ctx.reply(
       "Привет!👋🏻 \nВижу, ты тут впервые. Я - бот Коффи☕️. С моей помощью ты сможешь пообщаться с людьми, которым интересно то же, что и тебе!",
@@ -76,16 +98,18 @@ bot.command("start", async (ctx) => { // бот получает команду 
   }
 });
 
-// клавиатура для подтверждения интересов
-const yesOrNo = new InlineKeyboard().text("Да✅", "interestsDone").text(
-  "Нет❌",
-  "interestsNotDone",
-);
+async function setState(state: string) {
+  info.state = state;
+  await database.set(["users", info.id, "state"], state);
+}
 
-//обработка подтверждения интересов
-bot.callbackQuery("interestsDone", async (ctx) => {
-  await ctx.deleteMessage();
-  await ctx.reply("Отлично!");
+const acceptKeyboard = new Keyboard().text("Да!").text("Нет, хочу изменить")
+  .resized(true);
+
+  const changesKeyboard = new Keyboard().text("Хочу заполнить профиль заново").row().text("Имя").text("Возраст").row().text("Интересы").text("Геопозицию").row().text("Удобное время").resized(true)
+
+async function reviewProfile(ctx: MyContext) {
+  await setState("review");
   await ctx.reply("Вот, как тебя увидят другие пользователи:");
   await ctx.reply(
     `${info.name}, ${info.age}\n` +
@@ -93,8 +117,17 @@ bot.callbackQuery("interestsDone", async (ctx) => {
   );
   await ctx.reply("Геопозиция района, где будет удообно встретиться:");
   await ctx.replyWithLocation(info.geo.latitude, info.geo.longitiute);
-  await ctx.reply("Все верно?");
-  info.state = "review";
+  await ctx.reply("Все верно?", {
+    reply_markup: acceptKeyboard,
+  });
+}
+
+//обработка подтверждения интересов
+bot.callbackQuery("interestsDone", async (ctx) => {
+  await ctx.deleteMessage();
+  await ctx.reply("Отлично!");
+  await ctx.reply("Вот, как тебя увидят другие пользователи:");
+  await reviewProfile(ctx);
 });
 bot.callbackQuery("interestsNotDone", async (ctx) => {
   await ctx.deleteMessage();
@@ -102,9 +135,12 @@ bot.callbackQuery("interestsNotDone", async (ctx) => {
   info.state = "setInterests";
 });
 
-bot.hears("да", async (ctx) => { // пока без обработки
-  await database.set(["users", info.id], info);
-});
+bot.hears(
+  ["профиль", "Профиль", "Мой профиль", "Мой профиль 👤"],
+  async (ctx) => {
+    await reviewProfile(ctx);
+  },
+);
 
 bot.on("message", async (ctx) => {
   if (info.state) { // при непустом info.state
@@ -142,6 +178,15 @@ bot.on("message", async (ctx) => {
         );
         info.state = "setGeo";
         break;
+      case "review": 
+        if (ctx.msg.text == "Да!") {
+          await ctx.reply("Отлично!")
+        } else if (ctx.msg.text == "Нет, хочу изменить"){
+          await ctx.reply("Выбери, что хочешь изменить", {reply_markup: changesKeyboard})
+        }else {
+          await ctx.reply("Выбери один из вариантов на клавиатуре Telegram!")
+        }
+        break
       case "setGeo":
         if (!ctx.msg.location) {
           await ctx.reply(
