@@ -21,6 +21,7 @@ type MyContext = Context & {
 };
 
 const database = await Deno.openKv();
+database.delete(["users",827537985,"state"])
 
 //объявил бота
 export const bot = new Bot<MyContext>(Deno.env.get("BOT_TOKEN") || "");
