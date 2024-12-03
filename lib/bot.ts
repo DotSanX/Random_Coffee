@@ -1,43 +1,19 @@
-import {
-  Bot,
-  Context,
-  InlineKeyboard,
-  Keyboard,
-  NextFunction,
-} from "https://deno.land/x/grammy@v1.32.0/mod.ts";
+import { Bot } from "https://deno.land/x/grammy@v1.32.0/mod.ts";
 
-// интерфейс и тип для корректной работы и ide
-interface UserInfo {
-  id: number;
-  name: string;
-  age: number;
-  interests: string[];
-  geo: Record<string, number>;
-  time: string;
-  state: string;
-}
-type MyContext = Context & {
-  config: UserInfo;
-};
+import { changesKeyboard, menuKeyboard, yesOrNo } from "./keyboards.ts"; // импорт клавиатур
 
-const database = await Deno.openKv();
+import { MyContext, UserInfo } from "./interfaces.ts"; //импорт интерфейсов
+
+import { reviewProfile, setState } from "./functions.ts"; //импорт функций
+
+//база данных deno
+export const database = await Deno.openKv();
 
 //объявил бота
 export const bot = new Bot<MyContext>(Deno.env.get("BOT_TOKEN") || "");
 
-// эта переменная нужна для обработки состояния - устанавливает ли пользователь имя или, например, ожидает встречи
-// Список states на данный момент:
-// setName - установка имени
-// setAge - установка возраста
-// setInterests - установка интересов
-// setGeo - установка геопозиции
-// setTime - установка времени
-// pending - состояние ожидания
-// review - проверка анкеты пользователем
-// searching - состояние поиска
-
 // info будет нужна для сохранения инфо пользователя в бд (или получения) - представляет из себя набор данных о пользователе
-const info: UserInfo = {
+export const info: UserInfo = {
   id: 0,
   name: "",
   age: 0,
@@ -48,28 +24,13 @@ const info: UserInfo = {
   },
   time: "",
   state: "",
+  rating: 0,
 };
-
-// клавиатура для подтверждения интересов
-const yesOrNo = new InlineKeyboard().text("Да✅", "interestsDone").text(
-  "Нет❌",
-  "interestsNotDone",
-);
-
-const menuKeyboard = new Keyboard().text("Мой профиль 👤");
-
-// будущий middleware !пригодится для бд!
-bot.use(
-  // async (ctx, next) => {
-  //   // ctx.config = {
-  //   // };
-  //   await next();
-  // },
-);
 
 bot.command("start", async (ctx) => { // бот получает команду /start
   info.id = Number(ctx.msg.from?.id);
   if ((await database.get(["users", info.id])).value != null) {
+    // опитимизировать?
     info.name = String((await database.get(["users", info.id, "name"])).value);
     info.age = Number((await database.get(["users", info.id, "age"])).value);
     info.interests = Array(
@@ -85,6 +46,9 @@ bot.command("start", async (ctx) => { // бот получает команду 
     info.state = String(
       (await database.get(["users", info.id, "state"])).value,
     );
+    info.rating = Number(
+      (await database.get(["users", info.id, "rating"])).value,
+    );
     await ctx.reply(`Привет, ${info.name}!`, { reply_markup: menuKeyboard });
   } else {
     await ctx.reply(
@@ -94,33 +58,9 @@ bot.command("start", async (ctx) => { // бот получает команду 
       "🤔 А как зовут тебя? \n <b>Учти, что твое имя увидят другие пользователи.</b>",
       { parse_mode: "HTML" }, // нужно, чтобы использовать теги из html
     );
-    info.state = "setName"; // следующим сообщением боту должно придти имя
+    setState("setName"); // следующим сообщением боту должно придти имя
   }
 });
-
-async function setState(state: string) {
-  info.state = state;
-  await database.set(["users", info.id, "state"], state);
-}
-
-const acceptKeyboard = new Keyboard().text("Да!").text("Нет, хочу изменить")
-  .resized(true);
-
-  const changesKeyboard = new Keyboard().text("Хочу заполнить профиль заново").row().text("Имя").text("Возраст").row().text("Интересы").text("Геопозицию").row().text("Удобное время").resized(true)
-
-async function reviewProfile(ctx: MyContext) {
-  await setState("review");
-  await ctx.reply("Вот, как тебя увидят другие пользователи:");
-  await ctx.reply(
-    `${info.name}, ${info.age}\n` +
-      `Список интересов: ${info.interests.toString()}`,
-  );
-  await ctx.reply("Геопозиция района, где будет удообно встретиться:");
-  await ctx.replyWithLocation(info.geo.latitude, info.geo.longitiute);
-  await ctx.reply("Все верно?", {
-    reply_markup: acceptKeyboard,
-  });
-}
 
 //обработка подтверждения интересов
 bot.callbackQuery("interestsDone", async (ctx) => {
@@ -132,7 +72,7 @@ bot.callbackQuery("interestsDone", async (ctx) => {
 bot.callbackQuery("interestsNotDone", async (ctx) => {
   await ctx.deleteMessage();
   await ctx.reply("Хорошо, напиши еще увлечений!");
-  info.state = "setInterests";
+  setState("setInterests"); // следующим сообщением боту должно придти имя
 });
 
 bot.hears(
@@ -158,9 +98,8 @@ bot.on("message", async (ctx) => {
           info.name = ctx.msg.text || ""; //сохраняем в переменную
           await ctx.reply("Приятно познакомиться, " + info.name + "!");
           await ctx.reply("Кстати, сколько тебе лет?");
-          info.state = "setAge"; // и меняем состояние
+          setState("setAge");
         }
-
         break;
 
       case "setAge":
@@ -168,7 +107,6 @@ bot.on("message", async (ctx) => {
           await ctx.reply("Извини, но нужно ввести возраст числом!");
           return;
         }
-
         info.age = Number(ctx.msg.text);
         await ctx.reply(
           "Отлично! 🤩 Отправь мне местоположение, рядом с которым тебе будет удобно встретиться",
@@ -176,17 +114,21 @@ bot.on("message", async (ctx) => {
         await ctx.reply(
           "👀 Подсказка: нажми на скрепку🖇️ -> местоположение📍",
         );
-        info.state = "setGeo";
+        setState("setGeo");
         break;
-      case "review": 
+
+      case "review":
         if (ctx.msg.text == "Да!") {
-          await ctx.reply("Отлично!")
-        } else if (ctx.msg.text == "Нет, хочу изменить"){
-          await ctx.reply("Выбери, что хочешь изменить", {reply_markup: changesKeyboard})
-        }else {
-          await ctx.reply("Выбери один из вариантов на клавиатуре Telegram!")
+          await ctx.reply("Отлично!");
+        } else if (ctx.msg.text == "Нет, хочу изменить") {
+          await ctx.reply("Выбери, что хочешь изменить", {
+            reply_markup: changesKeyboard,
+          });
+        } else {
+          await ctx.reply("Выбери один из вариантов на клавиатуре Telegram!");
         }
-        break
+        break;
+
       case "setGeo":
         if (!ctx.msg.location) {
           await ctx.reply(
@@ -194,13 +136,12 @@ bot.on("message", async (ctx) => {
           );
           return;
         }
-
         info.geo.latitude = ctx.msg.location?.latitude;
         info.geo.longitiute = ctx.msg.location?.longitude; // записываем геопозицию в виде: ширина, долгота
         await ctx.reply(
           "😎 А теперь расскажи мне немного о себе. Перечисли через запятую свои хобби и увлечения!",
         );
-        info.state = "setInterests";
+        setState("setInterests");
         break;
 
       case "setInterests":
@@ -217,6 +158,7 @@ bot.on("message", async (ctx) => {
         );
         await ctx.reply("Это все?", { reply_markup: yesOrNo }); // смотри bot.callbackQuery
         break;
+
       default:
         break;
     }
