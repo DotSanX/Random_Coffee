@@ -24,12 +24,13 @@ export const info: UserInfo = {
   },
   time: "",
   state: "",
+  done: false,
   rating: 0,
 };
 
 bot.command("start", async (ctx) => { // бот получает команду /start
   info.id = Number(ctx.msg.from?.id);
-  if ((await database.get(["users", info.id])).value != null) {
+  if (Boolean((await database.get(["users", info.id, "done"])).value) != false) {
     // опитимизировать?
     info.name = String((await database.get(["users", info.id, "name"])).value);
     info.age = Number((await database.get(["users", info.id, "age"])).value);
@@ -119,6 +120,7 @@ bot.on("message", async (ctx) => {
       case "review":
         switch (ctx.msg.text) {
           case "Да!":
+            info.done = true
             await ctx.reply("Отлично!");
             await database.set(["users", info.id, "name"], info.name);
             await database.set(["users", info.id, "age"], info.age);
@@ -126,6 +128,7 @@ bot.on("message", async (ctx) => {
             await database.set(["users", info.id, "geo"], info.geo);
             await database.set(["users", info.id, "state"], info.state);
             await database.set(["users", info.id, "time"], info.time);
+            await database.set(["users", info.id, "done"], info.done);
             break;
 
           case "Нет, хочу изменить":

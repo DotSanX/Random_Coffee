@@ -9,6 +9,7 @@ export interface UserInfo {
   time: string;
   state: string;
   rating: number;
+  done: boolean;
 }
 
 export type MyContext = Context & {
