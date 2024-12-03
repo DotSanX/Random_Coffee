@@ -42,7 +42,7 @@ const info: UserInfo = {
   interests: [],
   geo: {
     latitude: 0,
-    longtitude: 0
+    longtitude: 0,
   },
   time: "",
   state: "",
@@ -57,15 +57,10 @@ bot.use(
   // },
 );
 
-bot.on("message", (ctx) => {
-  if (info.id == 0) {
-    info.id = ctx.msg.from.id;
-  }
-});
-
 bot.command("start", async (ctx) => { // бот получает команду /start
+  info.id = Number(ctx.msg.from?.id);
   if (await database.get(["users", info.id])) {
-    await ctx.reply("in db")
+    await ctx.reply("in db");
     info.state = String(
       (await database.get(["users", info.id, "state"])).value,
     );
@@ -92,10 +87,13 @@ bot.callbackQuery("interestsDone", async (ctx) => {
   await ctx.deleteMessage();
   await ctx.reply("Отлично!");
   await ctx.reply("Вот, как тебя увидят другие пользователи:");
-  await ctx.reply(`${info.name}, ${info.age}\n` + `Список интересов: ${info.interests.toString()}`);
+  await ctx.reply(
+    `${info.name}, ${info.age}\n` +
+      `Список интересов: ${info.interests.toString()}`,
+  );
   await ctx.reply("Геопозиция района, где будет удообно встретиться:");
-  await ctx.replyWithLocation(info.geo.latitude, info.geo.longitiute)
-  await ctx.reply("Все верно?")
+  await ctx.replyWithLocation(info.geo.latitude, info.geo.longitiute);
+  await ctx.reply("Все верно?");
   info.state = "review";
 });
 bot.callbackQuery("interestsNotDone", async (ctx) => {
@@ -104,9 +102,9 @@ bot.callbackQuery("interestsNotDone", async (ctx) => {
   info.state = "setInterests";
 });
 
-bot.hears('да', async ctx => { // пока без обработки
-  await database.set(["users", info.id], info)
-})
+bot.hears("да", async (ctx) => { // пока без обработки
+  await database.set(["users", info.id], info);
+});
 
 bot.on("message", async (ctx) => {
   if (info.state) { // при непустом info.state
@@ -152,8 +150,8 @@ bot.on("message", async (ctx) => {
           return;
         }
 
-        info.geo.latitude = ctx.msg.location?.latitude
-        info.geo.longitiute = ctx.msg.location?.longitude // записываем геопозицию в виде: ширина, долгота
+        info.geo.latitude = ctx.msg.location?.latitude;
+        info.geo.longitiute = ctx.msg.location?.longitude; // записываем геопозицию в виде: ширина, долгота
         await ctx.reply(
           "😎 А теперь расскажи мне немного о себе. Перечисли через запятую свои хобби и увлечения!",
         );
