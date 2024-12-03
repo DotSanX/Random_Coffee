@@ -98,9 +98,7 @@ bot.on("message", async (ctx) => {
         await ctx.reply(
           "👀 Подсказка: нажми на скрепку🖇️ -> местоположение📍",
         );
-        await ctx.reply(
-          info.geo
-        );
+        await ctx.reply("Приятно познакомиться, " + info.geo + "!");
         state = "setGeo";
         
 
