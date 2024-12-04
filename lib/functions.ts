@@ -10,7 +10,7 @@ export async function reviewProfile(ctx: Context) {
       `Список интересов: ${info.interests.toString()}`,
   );
   await ctx.reply("Геопозиция района, где будет удообно встретиться:");
-  await ctx.replyWithLocation(info.geo.latitude, info.geo.longitiute);
+//   await ctx.replyWithLocation(info.geo.latitude, info.geo.longitiute);
   await ctx.reply("Все верно?", {
     reply_markup: acceptKeyboard,
   });

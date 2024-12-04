@@ -65,7 +65,7 @@ bot.callbackQuery("interestsDone", async (ctx) => {
 bot.callbackQuery("interestsNotDone", async (ctx) => {
   await ctx.deleteMessage();
   await ctx.reply("Хорошо, напиши еще увлечений!");
-  setState("setInterests"); // следующим сообщением боту должно придти имя
+  setState("setInterests"); 
 });
 
 bot.hears(
