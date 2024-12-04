@@ -1,8 +1,8 @@
-import { MyContext } from "./interfaces.ts";
-import { database, info } from "./bot.ts";
+import { Context } from "https://deno.land/x/grammy@v1.32.0/mod.ts";
+import { users, info } from "./bot.ts";
 import { acceptKeyboard } from "./keyboards.ts";
 
-export async function reviewProfile(ctx: MyContext) {
+export async function reviewProfile(ctx: Context) {
   await setState("review");
   await ctx.reply("Вот, как тебя увидят другие пользователи:");
   await ctx.reply(
@@ -18,5 +18,5 @@ export async function reviewProfile(ctx: MyContext) {
 
 export async function setState(state: string) {
   info.state = state;
-  await database.set(["users", info.id, "state"], state);
+  await users.update({state: info.state}).eq("id", info.id)
 }
