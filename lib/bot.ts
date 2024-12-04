@@ -117,7 +117,7 @@ bot.on("message", async (ctx) => {
             await users.update({
               name: info.name,
               age: info.age,
-              geo: info.geo,
+              geo: JSON.stringify(info.geo),
               time: info.time,
               interests: info.interests,
               done: info.done,
