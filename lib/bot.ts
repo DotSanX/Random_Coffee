@@ -180,7 +180,7 @@ bot.on("message", async (ctx) => {
         await ctx.reply(
           "😎 А теперь расскажи мне немного о себе. Перечисли через запятую свои хобби и увлечения!",
         );
-        await ctx.reply('Ваше гео' + info.geo);
+        await ctx.reply('Ваше гео' + info.geo.latitude + ' ' + info.geo.longitiute);
         setState("setInterests");
         break;
 
