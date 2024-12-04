@@ -27,7 +27,6 @@ export let info: UserInfo = {
   done: false,
 };
 
-
 // info будет нужна для сохранения инфо пользователя в бд (или получения) - представляет из себя набор данных о пользователе
 bot.command("start", async (ctx) => { // бот получает команду /starts
   info.id = Number(ctx.msg.from?.id);
@@ -41,8 +40,11 @@ bot.command("start", async (ctx) => { // бот получает команду 
     info.done = (await users.select().eq("tg_id", info.id).single()).data.done;
     await ctx.reply(`Привет, ${info.name}!`, { reply_markup: menuKeyboard });
   } else {
-    let{data, error} = await users.insert({ tg_id: info.id, state: "setName" });
-    console.log(error, data)
+    let { data, error } = await users.insert({
+      tg_id: info.id,
+      state: "setName",
+    });
+    console.log(error, data);
     await ctx.reply(
       "Привет!👋🏻 \nВижу, ты тут впервые. Я - бот Коффи☕️. С моей помощью ты сможешь пообщаться с людьми, которым интересно то же, что и тебе!",
     );
@@ -60,7 +62,6 @@ bot.callbackQuery("interestsDone", async (ctx) => {
   await ctx.reply("Отлично!");
   await reviewProfile(ctx);
 });
-
 bot.callbackQuery("interestsNotDone", async (ctx) => {
   await ctx.deleteMessage();
   await ctx.reply("Хорошо, напиши еще увлечений!");
