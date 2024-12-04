@@ -1,5 +1,5 @@
 import { Context } from "https://deno.land/x/grammy@v1.32.0/mod.ts";
-import { users, info } from "./bot.ts";
+import { info, users } from "./bot.ts";
 import { acceptKeyboard } from "./keyboards.ts";
 
 export async function reviewProfile(ctx: Context) {
@@ -18,5 +18,5 @@ export async function reviewProfile(ctx: Context) {
 
 export async function setState(state: string) {
   info.state = state;
-  await users.update({state: info.state}).eq("id", info.id)
+  await users.update({ state: info.state }).eq("tg_id", info.id);
 }

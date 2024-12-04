@@ -30,17 +30,17 @@ export let info: UserInfo = {
 // info будет нужна для сохранения инфо пользователя в бд (или получения) - представляет из себя набор данных о пользователе
 bot.command("start", async (ctx) => { // бот получает команду /starts
   info.id = Number(ctx.msg.from?.id);
-  if ((await users.select().eq("id", ctx.msg.from?.id).single()).data) {
-    info.name = (await users.select().eq("id", info.id).single()).data.name;
-    info.age = (await users.select().eq("id", info.id).single()).data.age;
+  if ((await users.select().eq("tg_id", ctx.msg.from?.id).single()).data) {
+    info.name = (await users.select().eq("tg_id", info.id).single()).data.name;
+    info.age = (await users.select().eq("tg_id", info.id).single()).data.age;
     info.interests =
-      (await users.select().eq("id", info.id).single()).data.interests;
-    info.geo = (await users.select().eq("id", info.id).single()).data.geo;
-    info.time = (await users.select().eq("id", info.id).single()).data.time;
-    info.done = (await users.select().eq("id", info.id).single()).data.done;
+      (await users.select().eq("tg_id", info.id).single()).data.interests;
+    info.geo = (await users.select().eq("tg_id", info.id).single()).data.geo;
+    info.time = (await users.select().eq("tg_id", info.id).single()).data.time;
+    info.done = (await users.select().eq("tg_id", info.id).single()).data.done;
     await ctx.reply(`Привет, ${info.name}!`, { reply_markup: menuKeyboard });
   } else {
-    await users.insert({ id: info.id });
+    await users.insert({ tg_id: info.id });
     await ctx.reply(
       "Привет!👋🏻 \nВижу, ты тут впервые. Я - бот Коффи☕️. С моей помощью ты сможешь пообщаться с людьми, которым интересно то же, что и тебе!",
     );
@@ -119,7 +119,7 @@ bot.on("message", async (ctx) => {
               time: info.time,
               interests: info.interests,
               done: info.done,
-            }).eq("id", info.id);
+            }).eq("tg_id", info.id);
             break;
 
           case "Нет, хочу изменить":
