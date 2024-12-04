@@ -27,6 +27,7 @@ export let info: UserInfo = {
   done: false,
 };
 
+
 // info будет нужна для сохранения инфо пользователя в бд (или получения) - представляет из себя набор данных о пользователе
 bot.command("start", async (ctx) => { // бот получает команду /starts
   info.id = Number(ctx.msg.from?.id);
