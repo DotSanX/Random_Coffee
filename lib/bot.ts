@@ -30,8 +30,8 @@ export let info: UserInfo = {
 // info будет нужна для сохранения инфо пользователя в бд (или получения) - представляет из себя набор данных о пользователе
 bot.command("start", async (ctx) => { // бот получает команду /start
   if ((await users.select().eq("id", ctx.msg.from?.id).single()).data.done == true) {
-    await ctx.reply(`Привет, ${info}!`, { reply_markup: menuKeyboard });
     info = (await users.select().eq("id", ctx.msg.from?.id).single()).data;
+    await ctx.reply(`Привет, ${info.name}!`, { reply_markup: menuKeyboard });
   } else {
     await users.insert({ id: ctx.msg.from?.id });
     info = (await users.select().eq("id", ctx.msg.from?.id).single()).data;
