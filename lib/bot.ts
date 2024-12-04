@@ -28,10 +28,7 @@ export let info: UserInfo = {
 };
 
 // info будет нужна для сохранения инфо пользователя в бд (или получения) - представляет из себя набор данных о пользователе
-bot.command("start", async (ctx) => { // бот получает команду /start
-
-  info = (await users.select().eq("id", ctx.msg.from?.id).single()).data;
-  ctx.reply(`${info.id} ${info.state} ${info.done}!!!`)
+bot.command("start", async (ctx) => { // бот получает команду /starts
   if ((await users.select().eq("id", ctx.msg.from?.id).single()).data.done == true) {
     info = (await users.select().eq("id", ctx.msg.from?.id).single()).data;
     await ctx.reply(`Привет, ${info.name}!`, { reply_markup: menuKeyboard });
@@ -50,23 +47,24 @@ bot.command("start", async (ctx) => { // бот получает команду 
 });
 
 //обработка подтверждения интересов
-bot.callbackQuery("interestsDone", async (ctx) => {
-  await ctx.deleteMessage();
-  await ctx.reply("Отлично!");
-  await reviewProfile(ctx);
-});
-bot.callbackQuery("interestsNotDone", async (ctx) => {
-  await ctx.deleteMessage();
-  await ctx.reply("Хорошо, напиши еще увлечений!");
-  setState("setInterests"); // следующим сообщением боту должно придти имя
-});
+// bot.callbackQuery("interestsDone", async (ctx) => {
+//   await ctx.deleteMessage();
+//   await ctx.reply("Отлично!");
+//   await reviewProfile(ctx);
+// });
 
-bot.hears(
-  ["профиль", "Профиль", "Мой профиль", "Мой профиль 👤"],
-  async (ctx) => {
-    await reviewProfile(ctx);
-  },
-);
+// bot.callbackQuery("interestsNotDone", async (ctx) => {
+//   await ctx.deleteMessage();
+//   await ctx.reply("Хорошо, напиши еще увлечений!");
+//   setState("setInterests"); // следующим сообщением боту должно придти имя
+// });
+
+// bot.hears(
+//   ["профиль", "Профиль", "Мой профиль", "Мой профиль 👤"],
+//   async (ctx) => {
+//     await reviewProfile(ctx);
+//   },
+// );
 
 bot.on("message", async (ctx) => {
   if (info.state) { // при непустом info.state
