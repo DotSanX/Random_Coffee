@@ -65,7 +65,7 @@ bot.callbackQuery("interestsDone", async (ctx) => {
 bot.callbackQuery("interestsNotDone", async (ctx) => {
   await ctx.deleteMessage();
   await ctx.reply("Хорошо, напиши еще увлечений!");
-  setState("setInterests"); 
+  setState("setInterests");
 });
 
 bot.hears(
@@ -115,7 +115,7 @@ bot.on("message", async (ctx) => {
           case "Да!":
             info.done = true;
             await ctx.reply("Отлично!");
-            await users.update({
+            const { data, error } = await users.update({
               name: info.name,
               age: info.age,
               geo: JSON.stringify(info.geo),
@@ -123,6 +123,7 @@ bot.on("message", async (ctx) => {
               interests: info.interests,
               done: info.done,
             }).eq("tg_id", info.id);
+            console.log(data, error);
             break;
 
           case "Нет, хочу изменить":
