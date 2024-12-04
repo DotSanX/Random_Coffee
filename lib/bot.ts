@@ -57,23 +57,23 @@ bot.command("start", async (ctx) => { // бот получает команду 
 });
 
 // обработка подтверждения интересов
-bot.callbackQuery("interestsDone", async (ctx) => {
-  await ctx.deleteMessage();
-  await ctx.reply("Отлично!");
-  await reviewProfile(ctx);
-});
-bot.callbackQuery("interestsNotDone", async (ctx) => {
-  await ctx.deleteMessage();
-  await ctx.reply("Хорошо, напиши еще увлечений!");
-  setState("setInterests"); // следующим сообщением боту должно придти имя
-});
+// bot.callbackQuery("interestsDone", async (ctx) => {
+//   await ctx.deleteMessage();
+//   await ctx.reply("Отлично!");
+//   await reviewProfile(ctx);
+// });
+// bot.callbackQuery("interestsNotDone", async (ctx) => {
+//   await ctx.deleteMessage();
+//   await ctx.reply("Хорошо, напиши еще увлечений!");
+//   setState("setInterests"); // следующим сообщением боту должно придти имя
+// });
 
-bot.hears(
-  ["профиль", "Профиль", "Мой профиль", "Мой профиль 👤"],
-  async (ctx) => {
-    await reviewProfile(ctx);
-  },
-);
+// bot.hears(
+//   ["профиль", "Профиль", "Мой профиль", "Мой профиль 👤"],
+//   async (ctx) => {
+//     await reviewProfile(ctx);
+//   },
+// );
 
 bot.on("message", async (ctx) => {
   if (info.state) { // при непустом info.state
