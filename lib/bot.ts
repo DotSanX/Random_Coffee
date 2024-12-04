@@ -29,7 +29,7 @@ export let info: UserInfo = {
 
 // info будет нужна для сохранения инфо пользователя в бд (или получения) - представляет из себя набор данных о пользователе
 bot.command("start", async (ctx) => { // бот получает команду /starts
-  if ((await users.select().eq("id", ctx.msg.from?.id).single()).data.done == true) {
+  if ((await users.select().eq("id", ctx.msg.from?.id).single()).data == true) {
     info = (await users.select().eq("id", ctx.msg.from?.id).single()).data;
     await ctx.reply(`Привет, ${info.name}!`, { reply_markup: menuKeyboard });
   } else {
