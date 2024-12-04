@@ -4,6 +4,7 @@ import { MyContext, Database, Tables } from "./interfaces.ts"; //импорт и
 // import { reviewProfile, setState } from "./functions.ts"; //импорт функций
 import { createClient, QueryData, QueryResult } from 'npm:@supabase/supabase-js'
 
+
 // инициализация supabase
 const supabaseUrl = 'https://jgnfuigiiacuamzivzby.supabase.co'
 const supabaseKey = Deno.env.get("SUPABASE_KEY") || ""
