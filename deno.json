@@ -1,5 +1,6 @@
 {
   "imports": {
-    "express": "npm:express@^4.21.1"
+    "express": "npm:express@^4.21.1",
+    "supabase": "npm:supabase@^1.226.3"
   }
 }
