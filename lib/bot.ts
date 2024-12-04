@@ -12,6 +12,8 @@ export const users = supabase.from("users");
 
 //объявил бота
 export const bot = new Bot<Context>(Deno.env.get("BOT_TOKEN") || "");
+
+// локальная информация о пользователе
 export let info: UserInfo = {
   id: 0,
   name: "",
@@ -28,7 +30,7 @@ export let info: UserInfo = {
 };
 
 // info будет нужна для сохранения инфо пользователя в бд (или получения) - представляет из себя набор данных о пользователе
-bot.command("start", async (ctx) => { // бот получает команду /starts
+bot.command("start", async (ctx) => { // бот получает команду /start
   info.id = Number(ctx.msg.from?.id);
   if ((await users.select().eq("tg_id", ctx.msg.from?.id).single()).data) {
     info.name = (await users.select().eq("tg_id", info.id).single()).data.name;
@@ -40,11 +42,10 @@ bot.command("start", async (ctx) => { // бот получает команду 
     info.done = (await users.select().eq("tg_id", info.id).single()).data.done;
     await ctx.reply(`Привет, ${info.name}!`, { reply_markup: menuKeyboard });
   } else {
-    let { data, error } = await users.insert({
+    await users.insert({
       tg_id: info.id,
       state: "setName",
     });
-    console.log(error, data);
     await ctx.reply(
       "Привет!👋🏻 \nВижу, ты тут впервые. Я - бот Коффи☕️. С моей помощью ты сможешь пообщаться с людьми, которым интересно то же, что и тебе!",
     );
@@ -115,7 +116,7 @@ bot.on("message", async (ctx) => {
           case "Да!":
             info.done = true;
             await ctx.reply("Отлично!");
-            const { data, error } = await users.update({
+            await users.update({
               name: info.name,
               age: info.age,
               geo: JSON.stringify(info.geo),
@@ -123,7 +124,6 @@ bot.on("message", async (ctx) => {
               interests: info.interests,
               done: info.done,
             }).eq("tg_id", info.id);
-            console.log(data, error);
             break;
 
           case "Нет, хочу изменить":

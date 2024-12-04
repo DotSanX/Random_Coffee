@@ -18,6 +18,5 @@ export async function reviewProfile(ctx: Context) {
 
 export async function setState(state: string) {
   info.state = state;
-  const {data, error} = await users.update({ state: info.state }).eq("tg_id", info.id);
-  console.log(data)
+  await users.update({ state: info.state }).eq("tg_id", info.id);
 }
