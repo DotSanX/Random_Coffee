@@ -1,19 +1,20 @@
-import { Bot } from "https://deno.land/x/grammy@v1.32.0/mod.ts";
-
+import { Bot, Context } from "https://deno.land/x/grammy@v1.32.0/mod.ts";
 import { changesKeyboard, menuKeyboard, yesOrNo } from "./keyboards.ts"; // импорт клавиатур
-
-import { MyContext, UserInfo } from "./interfaces.ts"; //импорт интерфейсов
-
 import { reviewProfile, setState } from "./functions.ts"; //импорт функций
+import { createClient } from "npm:@supabase/supabase-js"; // database
+import { UserInfo } from "./interfaces.ts";
 
-//база данных deno
-export const database = await Deno.openKv();
+// инициализация supabase
+const supabaseUrl = "https://jgnfuigiiacuamzivzby.supabase.co";
+const supabaseKey = Deno.env.get("SUPABASE_KEY") || "";
+const supabase = createClient(supabaseUrl, supabaseKey);
+export const users = supabase.from("users");
 
 //объявил бота
-export const bot = new Bot<MyContext>(Deno.env.get("BOT_TOKEN") || "");
+export const bot = new Bot<Context>(Deno.env.get("BOT_TOKEN") || "");
 
-// info будет нужна для сохранения инфо пользователя в бд (или получения) - представляет из себя набор данных о пользователе
-export const info: UserInfo = {
+// локальная информация о пользователе
+export let info: UserInfo = {
   id: 0,
   name: "",
   age: 0,
@@ -24,34 +25,27 @@ export const info: UserInfo = {
   },
   time: "",
   state: "",
-  done: false,
   rating: 0,
+  done: false,
 };
 
+// info будет нужна для сохранения инфо пользователя в бд (или получения) - представляет из себя набор данных о пользователе
 bot.command("start", async (ctx) => { // бот получает команду /start
   info.id = Number(ctx.msg.from?.id);
-  if (Boolean((await database.get(["users", info.id, "done"])).value) != false) {
-    // опитимизировать? Yes
-    info.name = String((await database.get(["users", info.id, "name"])).value);
-    info.age = Number((await database.get(["users", info.id, "age"])).value);
-    info.interests = Array(
-      String((await database.get(["users", info.id, "interests"])).value),
-    );
-    info.geo.latitude = Number(
-      (await database.get(["users", info.id, "geo", "latitude"])).value,
-    );
-    info.geo.longitiute = Number(
-      (await database.get(["users", info.id, "geo", "longtitude"])).value,
-    );
-    info.time = String((await database.get(["users", info.id, "state"])).value);
-    info.state = String(
-      (await database.get(["users", info.id, "state"])).value,
-    );
-    info.rating = Number(
-      (await database.get(["users", info.id, "rating"])).value,
-    );
+  if ((await users.select().eq("tg_id", ctx.msg.from?.id).single()).data) {
+    info.name = (await users.select().eq("tg_id", info.id).single()).data.name;
+    info.age = (await users.select().eq("tg_id", info.id).single()).data.age;
+    info.interests =
+      (await users.select().eq("tg_id", info.id).single()).data.interests;
+    info.geo = (await users.select().eq("tg_id", info.id).single()).data.geo;
+    info.time = (await users.select().eq("tg_id", info.id).single()).data.time;
+    info.done = (await users.select().eq("tg_id", info.id).single()).data.done;
     await ctx.reply(`Привет, ${info.name}!`, { reply_markup: menuKeyboard });
   } else {
+    await users.insert({
+      tg_id: info.id,
+      state: "setName",
+    });
     await ctx.reply(
       "Привет!👋🏻 \nВижу, ты тут впервые. Я - бот Коффи☕️. С моей помощью ты сможешь пообщаться с людьми, которым интересно то же, что и тебе!",
     );
@@ -63,7 +57,7 @@ bot.command("start", async (ctx) => { // бот получает команду 
   }
 });
 
-//обработка подтверждения интересов
+// обработка подтверждения интересов
 bot.callbackQuery("interestsDone", async (ctx) => {
   await ctx.deleteMessage();
   await ctx.reply("Отлично!");
@@ -72,7 +66,7 @@ bot.callbackQuery("interestsDone", async (ctx) => {
 bot.callbackQuery("interestsNotDone", async (ctx) => {
   await ctx.deleteMessage();
   await ctx.reply("Хорошо, напиши еще увлечений!");
-  setState("setInterests"); // следующим сообщением боту должно придти имя
+  setState("setInterests");
 });
 
 bot.hears(
@@ -120,15 +114,16 @@ bot.on("message", async (ctx) => {
       case "review":
         switch (ctx.msg.text) {
           case "Да!":
-            info.done = true
+            info.done = true;
             await ctx.reply("Отлично!");
-            await database.set(["users", info.id, "name"], info.name);
-            await database.set(["users", info.id, "age"], info.age);
-            await database.set(["users", info.id, "interests"], info.interests);
-            await database.set(["users", info.id, "geo"], info.geo);
-            await database.set(["users", info.id, "state"], info.state);
-            await database.set(["users", info.id, "time"], info.time);
-            await database.set(["users", info.id, "done"], info.done);
+            await users.update({
+              name: info.name,
+              age: info.age,
+              geo: JSON.stringify(info.geo),
+              time: info.time,
+              interests: info.interests,
+              done: info.done,
+            }).eq("tg_id", info.id);
             break;
 
           case "Нет, хочу изменить":
@@ -146,25 +141,27 @@ bot.on("message", async (ctx) => {
       case "changeProfile":
         switch (ctx.msg.text) {
           case "Имя":
-            await ctx.reply("Хорошо, введи другое имя")
+            await ctx.reply("Хорошо, введи другое имя");
             break;
           case "Возраст":
-            await ctx.reply("Хорошо, введи другой возраст")
+            await ctx.reply("Хорошо, введи другой возраст");
             break;
           case "Геопозицию":
-            await ctx.reply("Хорошо, отправь другую геопозицию")
+            await ctx.reply("Хорошо, отправь другую геопозицию");
             break;
           case "Интересы":
-            await ctx.reply("Хорошо, введи другие интересы")
+            await ctx.reply("Хорошо, введи другие интересы");
             break;
           case "Удобное время":
-            await ctx.reply("Хорошо, введи другое время")
+            await ctx.reply("Хорошо, введи другое время");
             break;
           case "Хочу заполнить профиль заново":
-            await ctx.reply("Хорошо, введи другое имя")
+            await ctx.reply("Хорошо, введи другое имя");
             break;
           default:
-            await ctx.reply("Выбери вариант ответа, используя клавиатуру Telegram!")
+            await ctx.reply(
+              "Выбери вариант ответа, используя клавиатуру Telegram!",
+            );
             break;
         }
         break;
@@ -180,7 +177,6 @@ bot.on("message", async (ctx) => {
         await ctx.reply(
           "😎 А теперь расскажи мне немного о себе. Перечисли через запятую свои хобби и увлечения!",
         );
-        await ctx.reply('Ваше гео' + info.geo.latitude + ' ' + info.geo.longitiute);
         setState("setInterests");
         break;
 
@@ -201,7 +197,6 @@ bot.on("message", async (ctx) => {
 
       default:
         break;
-        
     }
   }
 });
