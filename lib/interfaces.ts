@@ -1,5 +1,3 @@
-import { Context } from "https://deno.land/x/grammy@v1.32.0/mod.ts";
-
 export interface UserInfo {
   id: number;
   name: string;
@@ -12,6 +10,3 @@ export interface UserInfo {
   done: boolean;
 }
 
-export type MyContext = Context & {
-  config: UserInfo;
-};
