@@ -30,30 +30,41 @@ export let info: UserInfo = {
 };
 
 // info будет нужна для сохранения инфо пользователя в бд (или получения) - представляет из себя набор данных о пользователе
-bot.command("start", async (ctx) => { // бот получает команду /start
-  info.id = Number(ctx.msg.from?.id);
-  if ((await users.select().eq("tg_id", ctx.msg.from?.id).single()).data) {
-    info.name = (await users.select().eq("tg_id", info.id).single()).data.name;
-    info.age = (await users.select().eq("tg_id", info.id).single()).data.age;
-    info.interests =
-      (await users.select().eq("tg_id", info.id).single()).data.interests;
-    info.geo = (await users.select().eq("tg_id", info.id).single()).data.geo;
-    info.time = (await users.select().eq("tg_id", info.id).single()).data.time;
-    info.done = (await users.select().eq("tg_id", info.id).single()).data.done;
-    await ctx.reply(`Привет, ${info.name}!`, { reply_markup: menuKeyboard });
+bot.command("start", async (ctx) => { 
+  const tgId = Number(ctx.msg.from?.id);
+
+ 
+  const existingUser = (await users.select().eq("tg_id", tgId).single()).data;
+
+  if (existingUser) {
+   
+    const { name, age, interests, geo, time, done } = existingUser;
+
+    info.id = tgId;
+    info.name = name;
+    info.age = age;
+    info.interests = interests;
+    info.geo = geo;
+    info.time = time;
+    info.done = done;
+
+    await ctx.reply(`Привет, ${name}!`, { reply_markup: menuKeyboard });
   } else {
+    
     await users.insert({
-      tg_id: info.id,
+      tg_id: tgId,
       state: "setName",
     });
+
     await ctx.reply(
       "Привет!👋🏻 \nВижу, ты тут впервые. Я - бот Коффи☕️. С моей помощью ты сможешь пообщаться с людьми, которым интересно то же, что и тебе!",
     );
     await ctx.reply(
-      "🤔 А как зовут тебя? \n <b>Учти, что твое имя увидят другие пользователи.</b>",
-      { parse_mode: "HTML" }, // нужно, чтобы использовать теги из html
+      "🤔 А как зовут тебя? \n<b>Учти, что твое имя увидят другие пользователи.</b>",
+      { parse_mode: "HTML" },
     );
-    setState("setName"); // следующим сообщением боту должно придти имя
+
+    setState("setName"); 
   }
 });
 
