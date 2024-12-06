@@ -5,13 +5,14 @@ import { createClient } from "npm:@supabase/supabase-js"; // database
 import { UserInfo } from "./interfaces.ts";
 
 // инициализация supabase
-const supabaseUrl = "https://jgnfuigiiacuamzivzby.supabase.co";
+const supabaseUrl = "https://ewbnuhgdcuskrkfiwfiv.supabase.co";
 const supabaseKey = Deno.env.get("SUPABASE_KEY") || "";
 const supabase = createClient(supabaseUrl, supabaseKey);
 export const users = supabase.from("users");
 
 //объявил бота
 export const bot = new Bot<Context>(Deno.env.get("BOT_TOKEN") || "");
+
 
 // локальная информация о пользователе
 export let info: UserInfo = {
