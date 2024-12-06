@@ -13,7 +13,6 @@ export const users = supabase.from("users");
 //объявил бота
 export const bot = new Bot<Context>(Deno.env.get("BOT_TOKEN") || "");
 
-
 // локальная информация о пользователе
 export let info: UserInfo = {
   id: 0,
