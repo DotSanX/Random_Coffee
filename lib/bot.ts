@@ -116,24 +116,19 @@ bot.on("message", async (ctx) => {
           case "Да!":
             info.done = true;
             await ctx.reply("Отлично!");
-            const { data, error } = await users.update({
+            await users.update({
               name: info.name,
               age: info.age,
-              // geo: JSON.stringify(info.geo),
+              geo: JSON.stringify(info.geo),
               time: info.time,
               interests: info.interests,
               done: info.done,
             }).eq("tg_id", info.id).single();
-            console.log(error?.code);
-            console.log(info.id);
-            console.log(info);
             break;
 
           case "Нет, хочу изменить":
-            setState("changeProfile");
-            await ctx.reply("Выбери, что хочешь изменить", {
-              reply_markup: changesKeyboard,
-            });
+            setState("setName");
+            await ctx.reply("Давайте начнем сначала! Как тебя зовут?");
             break;
 
           default:
@@ -141,19 +136,19 @@ bot.on("message", async (ctx) => {
             break;
         }
         break;
-      case "changeProfile":
-        switch (ctx.msg.text) {
-          case "Хочу заполнить профиль заново":
-            await ctx.reply("Хорошо, введи другое имя");
-            setState("setName");
-            break;
-          default:
-            await ctx.reply(
-              "Выбери вариант ответа, используя клавиатуру Telegram!",
-            );
-            break;
-        }
-        break;
+      // case "changeProfile":
+      //   switch (ctx.msg.text) {
+      //     case "Хочу заполнить профиль заново":
+      //       await ctx.reply("Хорошо, введи другое имя");
+      //       setState("setName");
+      //       break;
+      //     default:
+      //       await ctx.reply(
+      //         "Выбери вариант ответа, используя клавиатуру Telegram!",
+      //       );
+      //       break;
+      //   }
+      //   break;
       case "setGeo":
         if (!ctx.msg.location) {
           await ctx.reply(
@@ -190,7 +185,5 @@ bot.on("message", async (ctx) => {
   }
 });
 
-
 while (info.state == "searching") {
-  
 }
