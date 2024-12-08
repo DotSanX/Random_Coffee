@@ -8,7 +8,7 @@ export async function getProfile() {
     info.name = userData.name;
     info.age = userData.age;
     info.interests = userData.interests;
-    info.geo = userData.geo;
+    // info.geo = userData.geo;
     info.time = userData.time;
     info.done = userData.done;
     return userData;
