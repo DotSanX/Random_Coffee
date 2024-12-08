@@ -110,7 +110,8 @@ bot.on("message", async (ctx) => {
             await users.update({
               name: info.name,
               age: info.age,
-              // geo: info.geo,
+              lat: info.lat,
+              long: info.long,
               time: info.time,
               interests: info.interests,
               done: info.done,
@@ -128,19 +129,6 @@ bot.on("message", async (ctx) => {
             break;
         }
         break;
-      // case "changeProfile":
-      //   switch (ctx.msg.text) {
-      //     case "Хочу заполнить профиль заново":
-      //       await ctx.reply("Хорошо, введи другое имя");
-      //       setState("setName");
-      //       break;
-      //     default:
-      //       await ctx.reply(
-      //         "Выбери вариант ответа, используя клавиатуру Telegram!",
-      //       );
-      //       break;
-      //   }
-      //   break;
       case "setGeo":
         if (!ctx.msg.location) {
           await ctx.reply(

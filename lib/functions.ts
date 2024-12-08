@@ -19,7 +19,7 @@ export async function getProfile() {
 
 export async function reviewProfile(ctx: Context) {
   await setState("review");
-  await getProfile();
+  console.log(await getProfile());
   await ctx.reply("Вот, как тебя увидят другие пользователи:");
   console.log(info)
   await ctx.reply(
@@ -35,5 +35,5 @@ export async function reviewProfile(ctx: Context) {
 
 export async function setState(state: string) {
   info.state = state;
-  await users.update({ state: info.state }).eq("tg_id", info.id);
+  await users.update({ state: info.state }).eq("tg_id", info.id).single();
 }
