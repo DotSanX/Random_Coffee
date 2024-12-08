@@ -19,10 +19,8 @@ export const info: UserInfo = {
   name: "",
   age: 0,
   interests: [],
-  geo: {
-    latitude: 0,
-    longitude: 0,
-  },
+  lat: 0,
+  long: 0,
   time: "",
   state: "",
   rating: 0,
@@ -32,8 +30,7 @@ export const info: UserInfo = {
 // info будет нужна для сохранения инфо пользователя в бд (или получения) - представляет из себя набор данных о пользователе
 bot.command("start", async (ctx) => { // бот получает команду /start
   info.id = Number(ctx.msg.from?.id);
-  const profile = await getProfile();
-  if (profile) {
+  if (await getProfile()) {
     await ctx.reply(`Привет, ${info.name}!`, { reply_markup: menuKeyboard });
   } else {
     await users.insert({
@@ -123,6 +120,7 @@ bot.on("message", async (ctx) => {
           case "Нет, хочу изменить":
             setState("setName");
             await ctx.reply("Давайте начнем сначала! Как тебя зовут?");
+            info.interests = [];
             break;
 
           default:
@@ -150,8 +148,8 @@ bot.on("message", async (ctx) => {
           );
           return;
         }
-        info.geo.latitude = ctx.msg.location?.latitude;
-        info.geo.longitude = ctx.msg.location?.longitude; // записываем геопозицию в виде: ширина, долгота
+        info.lat = ctx.msg.location?.latitude;
+        info.long = ctx.msg.location?.longitude; // записываем геопозицию в виде: ширина, долгота
         await ctx.reply(
           "😎 А теперь расскажи мне немного о себе. Перечисли через запятую свои хобби и увлечения!",
         );

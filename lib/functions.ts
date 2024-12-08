@@ -11,15 +11,15 @@ export async function getProfile() {
     // info.geo = userData.geo;
     info.time = userData.time;
     info.done = userData.done;
-    return userData;
+    return true;
   } else {
     return false;
   }
 }
 
 export async function reviewProfile(ctx: Context) {
-  await getProfile();
   await setState("review");
+  await getProfile();
   await ctx.reply("Вот, как тебя увидят другие пользователи:");
   await ctx.reply(
     `${info.name}, ${info.age}\n` +
