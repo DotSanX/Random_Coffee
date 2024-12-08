@@ -50,14 +50,14 @@ bot.command("start", async (ctx) => { // бот получает команду 
 
 // обработка подтверждения интересов
 bot.callbackQuery("interestsDone", async (ctx) => {
+  await ctx.deleteMessage();
   await ctx.reply("Отлично!");
   await reviewProfile(ctx);
-  await ctx.deleteMessage();
 });
 bot.callbackQuery("interestsNotDone", async (ctx) => {
+  await ctx.deleteMessage();
   await ctx.reply("Хорошо, напиши еще увлечений!");
   setState("setInterests");
-  await ctx.deleteMessage();
 });
 
 bot.hears(
@@ -107,7 +107,7 @@ bot.on("message", async (ctx) => {
           case "Да!":
             info.done = true;
             await ctx.reply("Отлично!");
-            await users.update({
+            const {data, error} = await users.update({
               name: info.name,
               age: info.age,
               lat: info.lat,
@@ -116,6 +116,7 @@ bot.on("message", async (ctx) => {
               interests: info.interests,
               done: info.done,
             }).eq("tg_id", info.id).single();
+            console.log(data, error)
             break;
 
           case "Нет, хочу изменить":

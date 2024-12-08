@@ -19,9 +19,7 @@ export async function getProfile() {
 
 export async function reviewProfile(ctx: Context) {
   await setState("review");
-  console.log(await getProfile());
   await ctx.reply("Вот, как тебя увидят другие пользователи:");
-  console.log(info)
   await ctx.reply(
     `${info.name}, ${info.age}\n` +
       `Список интересов: ${info.interests.toString()}`,
