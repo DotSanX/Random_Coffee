@@ -21,7 +21,7 @@ export let info: UserInfo = {
   interests: [],
   geo: {
     latitude: 0,
-    longtitude: 0,
+    longitude: 0,
   },
   time: "",
   state: "",
@@ -32,14 +32,14 @@ export let info: UserInfo = {
 // info будет нужна для сохранения инфо пользователя в бд (или получения) - представляет из себя набор данных о пользователе
 bot.command("start", async (ctx) => { // бот получает команду /start
   info.id = Number(ctx.msg.from?.id);
-  if ((await users.select().eq("tg_id", ctx.msg.from?.id).single()).data) {
-    info.name = (await users.select().eq("tg_id", info.id).single()).data.name;
-    info.age = (await users.select().eq("tg_id", info.id).single()).data.age;
-    info.interests =
-      (await users.select().eq("tg_id", info.id).single()).data.interests;
-    info.geo = (await users.select().eq("tg_id", info.id).single()).data.geo;
-    info.time = (await users.select().eq("tg_id", info.id).single()).data.time;
-    info.done = (await users.select().eq("tg_id", info.id).single()).data.done;
+  const userData = (await users.select().eq("tg_id", info.id).single()).data;
+  if (userData) {
+    info.name = userData.name;
+    info.age = userData.age;
+    info.interests = userData.interests;
+    info.geo = userData.geo;
+    info.time = userData.time;
+    info.done = userData.done;
     await ctx.reply(`Привет, ${info.name}!`, { reply_markup: menuKeyboard });
   } else {
     await users.insert({
@@ -116,7 +116,7 @@ bot.on("message", async (ctx) => {
           case "Да!":
             info.done = true;
             await ctx.reply("Отлично!");
-            const {data, error} = await users.update({
+            const { data, error } = await users.update({
               name: info.name,
               age: info.age,
               // geo: JSON.stringify(info.geo),
@@ -124,10 +124,10 @@ bot.on("message", async (ctx) => {
               interests: info.interests,
               done: info.done,
             }).eq("tg_id", info.id).single();
-            console.log(error?.code)
-            console.log(info.id)
-            console.log(info)
-            break;  
+            console.log(error?.code);
+            console.log(info.id);
+            console.log(info);
+            break;
 
           case "Нет, хочу изменить":
             setState("changeProfile");
@@ -143,23 +143,9 @@ bot.on("message", async (ctx) => {
         break;
       case "changeProfile":
         switch (ctx.msg.text) {
-          case "Имя":
-            await ctx.reply("Хорошо, введи другое имя");
-            break;
-          case "Возраст":
-            await ctx.reply("Хорошо, введи другой возраст");
-            break;
-          case "Геопозицию":
-            await ctx.reply("Хорошо, отправь другую геопозицию");
-            break;
-          case "Интересы":
-            await ctx.reply("Хорошо, введи другие интересы");
-            break;
-          case "Удобное время":
-            await ctx.reply("Хорошо, введи другое время");
-            break;
           case "Хочу заполнить профиль заново":
             await ctx.reply("Хорошо, введи другое имя");
+            setState("setName");
             break;
           default:
             await ctx.reply(
@@ -203,3 +189,8 @@ bot.on("message", async (ctx) => {
     }
   }
 });
+
+
+while (info.state == "searching") {
+  
+}
