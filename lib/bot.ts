@@ -124,8 +124,8 @@ bot.on("message", async (ctx) => {
               interests: info.interests,
               done: info.done,
             }).eq("tg_id", info.id).single();
-            console.log(error)
-            break;
+            console.log(error?.code)
+            break;  
 
           case "Нет, хочу изменить":
             setState("changeProfile");
