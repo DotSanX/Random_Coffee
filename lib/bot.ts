@@ -125,6 +125,8 @@ bot.on("message", async (ctx) => {
               done: info.done,
             }).eq("tg_id", info.id).single();
             console.log(error?.code)
+            console.log(info.id)
+            console.log(info)
             break;  
 
           case "Нет, хочу изменить":
