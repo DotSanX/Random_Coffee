@@ -123,7 +123,7 @@ bot.on("message", async (ctx) => {
               time: info.time,
               interests: info.interests,
               done: info.done,
-            }).eq("tg_id", info.id);
+            }).eq("tg_id", info.id).single();
             console.log(error)
             break;
 
