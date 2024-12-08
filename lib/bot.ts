@@ -1,6 +1,6 @@
 import { Bot, Context } from "https://deno.land/x/grammy@v1.32.0/mod.ts";
 import { menuKeyboard, yesOrNo } from "./keyboards.ts"; // импорт клавиатур
-import { reviewProfile, setState , getProfile} from "./functions.ts"; //импорт функций
+import { getProfile, reviewProfile, setState } from "./functions.ts"; //импорт функций
 import { createClient } from "npm:@supabase/supabase-js"; // database
 import { UserInfo } from "./interfaces.ts";
 
@@ -32,7 +32,7 @@ export const info: UserInfo = {
 // info будет нужна для сохранения инфо пользователя в бд (или получения) - представляет из себя набор данных о пользователе
 bot.command("start", async (ctx) => { // бот получает команду /start
   info.id = Number(ctx.msg.from?.id);
-  const profile = await getProfile()
+  const profile = await getProfile();
   if (profile) {
     await ctx.reply(`Привет, ${info.name}!`, { reply_markup: menuKeyboard });
   } else {
@@ -113,7 +113,7 @@ bot.on("message", async (ctx) => {
             await users.update({
               name: info.name,
               age: info.age,
-              geo: info.geo,
+              // geo: info.geo,
               time: info.time,
               interests: info.interests,
               done: info.done,
