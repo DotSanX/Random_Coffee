@@ -119,7 +119,7 @@ bot.on("message", async (ctx) => {
             const {data, error} = await users.update({
               name: info.name,
               age: info.age,
-              geo: JSON.stringify(info.geo),
+              // geo: JSON.stringify(info.geo),
               time: info.time,
               interests: info.interests,
               done: info.done,
