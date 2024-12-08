@@ -1,6 +1,6 @@
 import { Bot, Context } from "https://deno.land/x/grammy@v1.32.0/mod.ts";
 import { menuKeyboard, yesOrNo } from "./keyboards.ts"; // импорт клавиатур
-import { getProfile, reviewProfile, setState } from "./functions.ts"; //импорт функций
+import { getProfile, reviewProfile, setState, getSimularUsers } from "./functions.ts"; //импорт функций
 import { createClient } from "npm:@supabase/supabase-js"; // database
 import { UserInfo } from "./interfaces.ts";
 
@@ -117,6 +117,7 @@ bot.on("message", async (ctx) => {
               done: info.done,
             }).eq("tg_id", info.id).single();
             console.log(data, error)
+            setState("searching")
             break;
 
           case "Нет, хочу изменить":
@@ -166,5 +167,11 @@ bot.on("message", async (ctx) => {
   }
 });
 
-// while (info.state == "searching") {
-// }
+while (info.state == "searching") {
+  setInterval(async ()=>{
+    const users = await getSimularUsers()
+    if (users.length>0) {
+      console.log("ого")
+    }
+  }, 10000)
+}
