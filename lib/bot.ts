@@ -14,7 +14,7 @@ export const users = supabase.from("users");
 export const bot = new Bot<Context>(Deno.env.get("BOT_TOKEN") || "");
 
 // локальная информация о пользователе
-export let info: UserInfo = {
+export const info: UserInfo = {
   id: 0,
   name: "",
   age: 0,
@@ -32,7 +32,7 @@ export let info: UserInfo = {
 // info будет нужна для сохранения инфо пользователя в бд (или получения) - представляет из себя набор данных о пользователе
 bot.command("start", async (ctx) => { // бот получает команду /start
   info.id = Number(ctx.msg.from?.id);
-  const profile = await getProfile(info.id)
+  const profile = await getProfile()
   if (profile) {
     await ctx.reply(`Привет, ${info.name}!`, { reply_markup: menuKeyboard });
   } else {
@@ -179,5 +179,5 @@ bot.on("message", async (ctx) => {
   }
 });
 
-while (info.state == "searching") {
-}
+// while (info.state == "searching") {
+// }

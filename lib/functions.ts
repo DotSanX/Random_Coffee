@@ -2,19 +2,23 @@ import { Context } from "https://deno.land/x/grammy@v1.32.0/mod.ts";
 import { info, users } from "./bot.ts";
 import { acceptKeyboard } from "./keyboards.ts";
 
-export async function getProfile(id: number) {
+export async function getProfile() {
   const userData = (await users.select().eq("tg_id", info.id).single()).data;
-  info.name = userData.name;
-  info.age = userData.age;
-  info.interests = userData.interests;
-  info.geo = userData.geo;
-  info.time = userData.time;
-  info.done = userData.done;
-  return userData;
+  if (userData) {
+    info.name = userData.name;
+    info.age = userData.age;
+    info.interests = userData.interests;
+    info.geo = userData.geo;
+    info.time = userData.time;
+    info.done = userData.done;
+    return userData;
+  } else {
+    return false;
+  }
 }
 
 export async function reviewProfile(ctx: Context) {
-  await getProfile(info.id)
+  await getProfile();
   await setState("review");
   await ctx.reply("Вот, как тебя увидят другие пользователи:");
   await ctx.reply(
