@@ -140,7 +140,7 @@ bot.on("message", async (ctx) => {
               interests: info.interests,
               done: info.done,
             }).eq("tg_id", info.id).single();
-            console.log(data, error);
+            console.log(data, error, info);
             setState("searching");
             break;
 
