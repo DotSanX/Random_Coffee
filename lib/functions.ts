@@ -29,10 +29,7 @@ export async function getSimularUsers() {
         Math.abs(Number(long[i]) - info.long) < tolerance
       ) {
         const userId = Number(
-          (await users.select("tg_id").eq("lat", Number(lat[i])).eq(
-            "long",
-            Number(long[i]),
-          ).single()).data,
+          (await users.select("*").lte('lat', Number(lat[i])).lte('long', Number(long[i]))).data,
         );
         similarUsers.push(userId);
       }

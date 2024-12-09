@@ -84,7 +84,7 @@ bot.on("message", async (ctx) => {
     switch (info.state) {
       case "searching":
         if (ctx.message.text?.toLowerCase().includes("покажи")) {
-          for (let person of similarUsers) {
+          for (const person of similarUsers) {
             const user = await getUser(person);
             ctx.reply(user.name)
           }
