@@ -1,5 +1,5 @@
 import { Context } from "https://deno.land/x/grammy@v1.32.0/mod.ts";
-import { info, users } from "./bot.ts";
+import { info, similarUsers, users } from "./bot.ts";
 import { acceptKeyboard } from "./keyboards.ts";
 
 export async function getProfile() {
@@ -19,19 +19,25 @@ export async function getProfile() {
 
 export async function getSimularUsers() {
   const tolerance = 0.05;
-  const simularusers = [];
-  const lat = (await users.select("lat")).data
-  const long = (await users.select("long")).data
+  const lat = (await users.select("lat")).data;
+  const long = (await users.select("long")).data;
   //вытаскиваем из базы гео всех пользователей
   if (lat && long) {
     for (let i = 0; i < lat.length; i++) {
-      if (Math.abs(Number(lat[i]) - info.lat) < tolerance && Math.abs(Number(long[i]) - info.long) < tolerance) {
-        const user = await users.select("tg_id").eq("tg_id", Number(lat[i]) + Number(long[i]));
-        simularusers.push(user);
+      if (
+        Math.abs(Number(lat[i]) - info.lat) < tolerance &&
+        Math.abs(Number(long[i]) - info.long) < tolerance
+      ) {
+        const userId = Number(
+          (await users.select("tg_id").eq("lat", Number(lat[i])).eq(
+            "long",
+            Number(long[i]),
+          ).single()).data,
+        );
+        similarUsers.push(userId);
       }
     }
   }
-  return simularusers;
 }
 
 export async function reviewProfile(ctx: Context) {
@@ -46,6 +52,11 @@ export async function reviewProfile(ctx: Context) {
   await ctx.reply("Все верно?", {
     reply_markup: acceptKeyboard,
   });
+}
+
+export async function getUser(id: number) {
+  const user = (await users.select().eq("tg_id", id).single()).data;
+  return user;
 }
 
 export async function setState(state: string) {

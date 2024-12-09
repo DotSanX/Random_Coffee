@@ -1,6 +1,16 @@
-import { Bot, Context } from "https://deno.land/x/grammy@v1.32.0/mod.ts";
+import {
+  Bot,
+  Context,
+  Keyboard,
+} from "https://deno.land/x/grammy@v1.32.0/mod.ts";
 import { menuKeyboard, yesOrNo } from "./keyboards.ts"; // импорт клавиатур
-import { getProfile, reviewProfile, setState, getSimularUsers } from "./functions.ts"; //импорт функций
+import {
+  getProfile,
+  getSimularUsers,
+  getUser,
+  reviewProfile,
+  setState,
+} from "./functions.ts"; //импорт функций
 import { createClient } from "npm:@supabase/supabase-js"; // database
 import { UserInfo } from "./interfaces.ts";
 
@@ -26,6 +36,8 @@ export const info: UserInfo = {
   rating: 0,
   done: false,
 };
+
+export const similarUsers: number[] = [];
 
 // info будет нужна для сохранения инфо пользователя в бд (или получения) - представляет из себя набор данных о пользователе
 bot.command("start", async (ctx) => { // бот получает команду /start
@@ -70,6 +82,16 @@ bot.hears(
 bot.on("message", async (ctx) => {
   if (info.state) { // при непустом info.state
     switch (info.state) {
+      case "searching":
+        if (ctx.message.text?.toLowerCase().includes("покажи")) {
+          for (let person of similarUsers) {
+            const user = await getUser(person);
+            ctx.reply(user.name)
+          }
+        } else {
+          ctx.reply("Выбери вариант на клавиатуре Telegram!");
+        }
+        break;
       case "setName":
         if (
           typeof ctx.msg.text !== "string" ||
@@ -106,8 +128,8 @@ bot.on("message", async (ctx) => {
         switch (ctx.msg.text) {
           case "Да!":
             info.done = true;
-            await ctx.reply("Отлично!");
-            const {data, error} = await users.update({
+            await ctx.reply("Отлично!", { reply_markup: menuKeyboard });
+            const { data, error } = await users.update({
               name: info.name,
               age: info.age,
               lat: info.lat,
@@ -116,8 +138,8 @@ bot.on("message", async (ctx) => {
               interests: info.interests,
               done: info.done,
             }).eq("tg_id", info.id).single();
-            console.log(data, error)
-            setState("searching")
+            console.log(data, error);
+            setState("searching");
             break;
 
           case "Нет, хочу изменить":
@@ -168,11 +190,14 @@ bot.on("message", async (ctx) => {
 });
 
 while (info.state == "searching") {
-  setInterval(async ()=>{
-    const users = await getSimularUsers()
-    if (users.length>0) {
-      console.log("ого")
-      
+  setInterval(async () => {
+    await getSimularUsers();
+    if (similarUsers.length > 0) {
+      await bot.api.sendMessage(
+        info.id,
+        "Нашелся человек, который может с тобой встретиться!",
+        { reply_markup: new Keyboard().text("Покажи").resized() },
+      );
     }
-  }, 10000)
+  }, 10000);
 }
