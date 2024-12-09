@@ -62,11 +62,13 @@ bot.command("start", async (ctx) => { // бот получает команду 
 
 // обработка подтверждения интересов
 bot.callbackQuery("interestsDone", async (ctx) => {
+  await ctx.answerCallbackQuery("")
   await ctx.deleteMessage();
   await ctx.reply("Отлично!");
   await reviewProfile(ctx);
 });
 bot.callbackQuery("interestsNotDone", async (ctx) => {
+  await ctx.answerCallbackQuery("")
   await ctx.deleteMessage();
   await ctx.reply("Хорошо, напиши еще увлечений!");
   setState("setInterests");
