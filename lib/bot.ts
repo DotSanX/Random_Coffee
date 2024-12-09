@@ -42,7 +42,7 @@ export const similarUsers: number[] = [];
 // info будет нужна для сохранения инфо пользователя в бд (или получения) - представляет из себя набор данных о пользователе
 bot.command("start", async (ctx) => { // бот получает команду /start
   info.id = Number(ctx.msg.from?.id);
-  if (await getProfile()) {
+  if (await getProfile() && info.done == true) {
     await ctx.reply(`Привет, ${info.name}!`, { reply_markup: menuKeyboard });
   } else {
     await users.insert({
