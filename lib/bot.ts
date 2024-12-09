@@ -195,6 +195,8 @@ bot.on("message", async (ctx) => {
 while (info.state == "searching") {
   setInterval(async () => {
     await getSimularUsers();
+    console.log("searching")
+    console.log(similarUsers)
     if (similarUsers.length > 0) {
       await bot.api.sendMessage(
         info.id,
