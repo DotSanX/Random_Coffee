@@ -172,6 +172,7 @@ while (info.state == "searching") {
     const users = await getSimularUsers()
     if (users.length>0) {
       console.log("ого")
+      
     }
   }, 10000)
 }
